@@ -1,0 +1,8 @@
+{
+  "name": "afriplay",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {"dev": "npm run dev -w @afriplay/api", "dev:web": "npm run dev -w @afriplay/web", "build": "npm run build --workspaces", "test": "npm run test -w @afriplay/api", "db:generate": "npm run prisma:generate -w @afriplay/api", "db:migrate": "npm run prisma:migrate -w @afriplay/api"},
+  "engines": {"node": ">=20"}
+}
