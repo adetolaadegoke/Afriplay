@@ -1,0 +1,2 @@
+import {describe,it,expect} from 'vitest';import {z} from 'zod';
+describe('registration validation',()=>{const schema=z.object({email:z.string().email(),username:z.string().regex(/^[a-zA-Z0-9_]{3,30}$/),password:z.string().min(10)});it('rejects unsafe credentials',()=>expect(()=>schema.parse({email:'nope',username:'bad name',password:'short'})).toThrow());it('accepts a valid account',()=>expect(schema.parse({email:'a@b.co',username:'afri_user',password:'longenough1'}).username).toBe('afri_user'))});

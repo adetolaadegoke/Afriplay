@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+enum Role {
+  USER
+  ARTIST
+  ADMIN
+}
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+model User {
+ id String @id @default(cuid())
+ name String
+ email String @unique
+ username String @unique
+ passwordHash String
+ role Role @default(USER)
+ imageUrl String?
+ verifiedAt DateTime?
+ suspendedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ artist Artist?
+ playlists Playlist[]
+ favorites Favorite[]
+ history ListeningHistory[]
+ subscriptions Subscription[]
+ payments Payment[]
+ follows Follow[]
+ notifications Notification[]
+ passwordResets PasswordReset[]
+ @@index([role, createdAt])
+}
+model Artist {
+  id String @id @default(cuid())
+ userId String @unique
+ stageName String @unique
+ bio String?
+ imageUrl String?
+ country String?
+ genres String[]
+ socialLinks Json?
+ status ApprovalStatus @default(PENDING)
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ songs Song[]
+ albums Album[]
+ followers Follow[]
+ @@index([status,stageName])
+}
+model PasswordReset {
+  id String @id @default(cuid())
+ userId String
+ tokenHash String @unique
+ expiresAt DateTime
+ usedAt DateTime?
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ @@index([userId,expiresAt])
+}
+model Genre {
+  id String @id @default(cuid())
+ name String @unique
+ slug String @unique
+ songs Song[]
+}
+model Album {
+  id String @id @default(cuid())
+ title String
+ artistId String
+ artworkUrl String?
+ releaseDate DateTime?
+ artist Artist @relation(fields:[artistId],references:[id],onDelete:Cascade)
+ songs Song[]
+ @@index([artistId,releaseDate])
+}
+model Song {
+  id String @id @default(cuid())
+ title String
+ artistId String
+ albumId String?
+ genreId String?
+ audioUrl String
+ artworkUrl String?
+ duration Int
+ explicit Boolean @default(false)
+ status ApprovalStatus @default(PENDING)
+ plays Int @default(0)
+ createdAt DateTime @default(now())
+ artist Artist @relation(fields:[artistId],references:[id],onDelete:Cascade)
+ album Album? @relation(fields:[albumId],references:[id])
+ genre Genre? @relation(fields:[genreId],references:[id])
+ favorites Favorite[]
+ playlistSongs PlaylistSong[]
+ history ListeningHistory[]
+ @@index([status,createdAt])
+ @@index([artistId,status])
+}
+model Playlist {
+  id String @id @default(cuid())
+ name String
+ description String?
+ imageUrl String?
+ isPublic Boolean @default(true)
+ ownerId String
+ createdAt DateTime @default(now())
+ owner User @relation(fields:[ownerId],references:[id],onDelete:Cascade)
+ songs PlaylistSong[]
+ @@index([ownerId,createdAt])
+}
+model PlaylistSong {
+  playlistId String
+ songId String
+ position Int
+ playlist Playlist @relation(fields:[playlistId],references:[id],onDelete:Cascade)
+ song Song @relation(fields:[songId],references:[id],onDelete:Cascade)
+ @@id([playlistId,songId])
+ @@index([playlistId,position])
+}
+model Favorite {
+  userId String
+ songId String
+ createdAt DateTime @default(now())
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ song Song @relation(fields:[songId],references:[id],onDelete:Cascade)
+ @@id([userId,songId])
+}
+model Follow {
+  userId String
+ artistId String
+ createdAt DateTime @default(now())
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ artist Artist @relation(fields:[artistId],references:[id],onDelete:Cascade)
+ @@id([userId,artistId])
+}
+model ListeningHistory {
+  id String @id @default(cuid())
+ userId String
+ songId String
+ secondsPlayed Int @default(0)
+ playedAt DateTime @default(now())
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ song Song @relation(fields:[songId],references:[id],onDelete:Cascade)
+ @@index([userId,playedAt])
+}
+model Plan {
+  id String @id @default(cuid())
+ name String @unique
+ priceKobo Int
+ interval String @default("monthly")
+ active Boolean @default(true)
+ subscriptions Subscription[]
+}
+model Subscription {
+  id String @id @default(cuid())
+ userId String
+ planId String
+ status String
+ startsAt DateTime
+ endsAt DateTime
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ plan Plan @relation(fields:[planId],references:[id])
+ @@index([userId,status,endsAt])
+}
+model Payment {
+  id String @id @default(cuid())
+ userId String
+ planId String?
+ reference String @unique
+ amountKobo Int
+ currency String @default("NGN")
+ status PaymentStatus @default(PENDING)
+ provider String @default("PAYSTACK")
+ createdAt DateTime @default(now())
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ @@index([userId,createdAt])
+}
+model Notification {
+  id String @id @default(cuid())
+ userId String
+ title String
+ body String
+ readAt DateTime?
+ createdAt DateTime @default(now())
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ @@index([userId,createdAt])
+}

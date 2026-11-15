@@ -1,0 +1,1 @@
+{"expo":{"name":"Afriplay","slug":"afriplay","scheme":"afriplay","version":"0.1.0","orientation":"portrait","icon":"./assets/icon.png","splash":{"image":"./assets/splash.png","resizeMode":"contain","backgroundColor":"#0b1020"},"ios":{"bundleIdentifier":"com.afriplay.app"},"android":{"package":"com.afriplay.app"},"plugins":["expo-router"]}}
