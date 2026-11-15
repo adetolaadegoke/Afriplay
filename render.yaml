@@ -11,7 +11,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm install && npm run db:generate && npm run build -w @afriplay/api
+    buildCommand: npm install --include=dev && npm run db:generate && npm run build -w @afriplay/api
     startCommand: npx prisma db push --schema apps/api/prisma/schema.prisma && npm run start -w @afriplay/api
     healthCheckPath: /health
     envVars:
@@ -28,7 +28,7 @@ services:
   - type: web
     runtime: static
     name: adetolaadegoke-afriplay-web
-    buildCommand: npm install && npm run build -w @afriplay/web
+    buildCommand: npm install --include=dev && npm run build -w @afriplay/web
     staticPublishPath: apps/web/dist
     envVars:
       - key: VITE_API_URL
