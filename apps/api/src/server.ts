@@ -9,7 +9,7 @@ type Claims={ sub:string; role:Role };
 function token(c:Claims) { return jwt.sign(c,env.AUTH_SECRET,{expiresIn:'7d'}); }
 function auth(req:FastifyRequest):Claims { const t=req.cookies.afriplay_session; if(!t) throw app.httpErrors.unauthorized('Sign in required'); try{return jwt.verify(t,env.AUTH_SECRET) as Claims}catch{throw app.httpErrors.unauthorized('Session expired')} }
 function allow(...roles:Role[]) { return (req:FastifyRequest)=> { const c=auth(req); if(!roles.includes(c.role)) throw app.httpErrors.forbidden('Insufficient permission'); return c; }; }
-const publicSong={artist:{select:{stageName:true,imageUrl:true}},album:{select:{title:true}},genre:{select:{name:true}}};
+const publicSong={artist:{select:{id:true,stageName:true,imageUrl:true}},album:{select:{title:true}},genre:{select:{name:true}}};
 const monthlyPlans=[{name:'Individual',priceKobo:140000},{name:'Student',priceKobo:60000},{name:'Duo',priceKobo:190000},{name:'Family',priceKobo:230000}];
 app.get('/health', async()=>({status:'ok'}));
 app.get('/plans',async()=>prisma.plan.findMany({where:{active:true},orderBy:{priceKobo:'asc'},select:{id:true,name:true,priceKobo:true,interval:true}}));
