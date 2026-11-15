@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: adetolaadegoke-afriplay-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run db:generate && npm run build -w @afriplay/api
+    startCommand: npx prisma db push --schema apps/api/prisma/schema.prisma && npm run start -w @afriplay/api
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: WEB_ORIGIN
+        value: https://adetolaadegoke-afriplay-web.onrender.com
+      - key: NODE_ENV
+        value: production
+  - type: web
+    runtime: static
+    name: adetolaadegoke-afriplay-web
+    buildCommand: npm install && npm run build -w @afriplay/web
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://adetolaadegoke-afriplay-api.onrender.com
