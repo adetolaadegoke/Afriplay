@@ -87,6 +87,8 @@ model Album {
 model Song {
   id String @id @default(cuid())
  title String
+ description String?
+ lyrics String?
  artistId String
  albumId String?
  genreId String?
