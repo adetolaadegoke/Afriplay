@@ -1,14 +1,24 @@
+databases:
+  - name: adetolaadegoke-afriplay-db
+    databaseName: afriplay
+    user: afriplay
+    plan: free
+    region: oregon
+
 services:
   - type: web
     name: adetolaadegoke-afriplay-api
     runtime: node
     plan: free
+    region: oregon
     buildCommand: npm install && npm run db:generate && npm run build -w @afriplay/api
     startCommand: npx prisma db push --schema apps/api/prisma/schema.prisma && npm run start -w @afriplay/api
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: adetolaadegoke-afriplay-db
+          property: connectionString
       - key: AUTH_SECRET
         generateValue: true
       - key: WEB_ORIGIN
